@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -17,16 +18,17 @@ public class Tela extends JPanel{
 	private Camera camera;
 	private Objeto objeto;
 	private Iluminacao iluminacao;
+	private double r;
 
 	//Alg. do Pintor
 	private double[][] zbuffer;
 	private Graphics2D graphics;
 
-	public Tela(Objeto objeto, Iluminacao iluminacao, Camera camera) {
+	public Tela(Objeto objeto, Iluminacao iluminacao, Camera camera, double r) {
 		this.camera = camera;
 		this.objeto = objeto;
 		this.iluminacao = iluminacao;
-		//this.setBackground(Color.darkGray);
+		this.r = r;
 	}
 
 	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y) {
@@ -73,6 +75,9 @@ public class Tela extends JPanel{
 				c = coords[0]*N1.z + coords[1]*N2.z + coords[2]*N3.z;
 
 				N = new Ponto(a, b, c);
+				Ponto aux1 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
+				Ponto aux2 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
+				N = Auxiliar.perturbarNormal(aux1, aux2, N, this.r);
 				Auxiliar.normalizar(N);
 
 				V = new Ponto(-P.x, -P.y, -P.z);
@@ -121,16 +126,20 @@ public class Tela extends JPanel{
 
 		/*Vetor R*/
 		Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 2*aux*normal.z - L.z);
+		//Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 255 * 6 / this.r);
+		
 
 		/*Vetor V*/
 		Ponto V = new Ponto(-pixel.x, -pixel.y, -pixel.z);
 		Auxiliar.normalizar(V);
 
 		double escalarVR = Auxiliar.produtoEscalar(V, R);
+		//escalarVR = Auxiliar.perturbarNormal(V, R, Auxiliar.produtoVetorial(V, R), this.r);
 
 		/*Componente Especular*/
 		if (escalarVR > 0) {
 			double rugosidade = iluminacao.ks*Math.pow(escalarVR, iluminacao.n);
+			//rugosidade = Math.random() * this.r;
 			cor[0] += iluminacao.Il[0]*rugosidade;
 			cor[1] += iluminacao.Il[1]*rugosidade;
 			cor[2] += iluminacao.Il[2]*rugosidade;
@@ -201,7 +210,7 @@ public class Tela extends JPanel{
 							|| (A.x > zbuffer.length && B.x > zbuffer.length && C.x > zbuffer.length)
 							|| (A.y > zbuffer[0].length && B.y > zbuffer[0].length && C.y > zbuffer[0].length)){
 					
-						//Se entrou aqui o triangulo nao vai ser varrido pq ele est� fora da tela
+						//triangulo nao vai ser varrido pq ele esta fora da tela
 					}else{
 						
 						yMax = P[2].y;

@@ -33,10 +33,10 @@ public class Main extends JFrame {
 	private double rugosidade;
 	
 	
-	final TextField tfCamera = new TextField("     ");
-	final TextField tfIluminacao = new TextField("     ");
-	final TextField tfObjeto = new TextField("     ");
-	final TextField tfRugosidade = new TextField("     ");
+	final TextField tfCamera = new TextField("calice2");
+	final TextField tfIluminacao = new TextField("iluminacao.txt");
+	final TextField tfObjeto = new TextField("calice2");
+	final TextField tfRugosidade = new TextField("1000");
 	
 	public static void main(String[] args) {
 		
@@ -70,11 +70,9 @@ public class Main extends JFrame {
     painel2.add(lbRugosidade);
     painel2.add(tfRugosidade);
     
-  //Butao receber o numero de avaliações
     Button btTela = new Button("Atualizar tela");
     painel2.add(btTela);
     
-  //botão pra exibir pontos de curva
     btTela.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent ae) {
         	String cam = tfCamera.getText();
@@ -103,7 +101,7 @@ public class Main extends JFrame {
     		
     		
 
-    		add(new Tela(objeto, iluminacao ,camera));
+    		add(new Tela(objeto, iluminacao ,camera, rugosidade));
 			principal.setVisible(true);
     		
 

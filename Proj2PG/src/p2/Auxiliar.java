@@ -23,14 +23,15 @@ public class Auxiliar {
 		return new Ponto(i, j, k);
 	}
 	
-	static Ponto somaPonto(Ponto A,Ponto B, Ponto N, double rugosidade){
+	static Ponto perturbarNormal(Ponto A,Ponto B, Ponto N, double rugosidade){
         Ponto C = new Ponto(0,0,0);
         
         double r1 = (double) (Math.random() * rugosidade);
-        //double r2 = (double) (Math.random() * rugosidade);
-        C.x = (A.x * r1) + (B.x * r1) + N.x; 
-        C.y = (A.y * r1) + (B.y * r1) + N.y; 
-        C.z = (A.z * r1) + (B.z * r1) + N.z; 
+        double r2 = (double) (Math.random() * rugosidade);
+        C.x = ( (B.x * r1) + (A.x * r2) ) + N.x; 
+        C.y = ( (B.y * r1) + (A.y * r2) ) + N.y; 
+        C.z = ( (B.z * r1) + (A.z * r2) ) + N.z;
+        
         return C;
    }
 	

@@ -302,8 +302,8 @@ public class PreProcessamento {
 				v2.y = p3.y - p1.y;
 				v2.z = p3.z - p1.z;
 
-				normais_triangulos[i] = Auxiliar.somaPonto(v1, v2, Auxiliar.produtoVetorial(v1, v2), rugosidade); // Vetor normal ao plano
-				
+				//normais_triangulos[i] = Auxiliar.perturbarNormal(v1, v2, Auxiliar.produtoVetorial(v1, v2), rugosidade); // Vetor normal ao plano
+				normais_triangulos[i] = Auxiliar.produtoVetorial(v1, v2);
 				Auxiliar.normalizar(normais_triangulos[i]);
 				
 				/*Atualiza cada normal, somando o vetor normal ao plano determinado pelos três vértices*/
