@@ -31,7 +31,7 @@ public class Tela extends JPanel{
 		this.r = r;
 	}
 
-	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y) {
+	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y, Ponto[] w) {
 		double a, b, c;
 		double[] coords;
 
@@ -62,12 +62,24 @@ public class Tela extends JPanel{
 
 			//Consulta o z-buffer
 			if (x >= 0 && y >= 0 && x < zbuffer.length && y < zbuffer[0].length && P.z > 0 && P.z < zbuffer[(int) x][(int) y]) {
+				
 				zbuffer[(int) x][(int) y] = P.z;
-
+				
+				Ponto v1 = new Ponto(0,0,0);
+				Ponto v2 = new Ponto(0,0,0);
+				
 				//Normais dos vertices do triangulo
 				N1 = obj.normaisVertices[A.id];
 				N2 = obj.normaisVertices[B.id];
 				N3 = obj.normaisVertices[C.id];
+				
+				v1.x = N2.x - N1.x;
+				v1.y = N2.y - N1.y;
+				v1.z = N2.z - N1.z;
+				
+				v2.x = N3.x - N1.x;
+				v2.y = N3.y - N1.y;
+				v2.z = N3.z - N1.z;
 				
 				//Normal do ponto atual
 				a = coords[0]*N1.x + coords[1]*N2.x + coords[2]*N3.x;
@@ -75,9 +87,10 @@ public class Tela extends JPanel{
 				c = coords[0]*N1.z + coords[1]*N2.z + coords[2]*N3.z;
 
 				N = new Ponto(a, b, c);
-				Ponto aux1 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
-				Ponto aux2 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
-				N = Auxiliar.perturbarNormal(aux1, aux2, N, this.r);
+				//System.out.println("Antes: x: " + N.x + ", y: " + N.y + ", z: " + N.z);
+				 
+				//System.out.println("Depois: x: " + N.x + ", y: " + N.y + ", z: " + N.z);
+				N = Auxiliar.perturbarNormal(v1, v2, N, this.r);
 				Auxiliar.normalizar(N);
 
 				V = new Ponto(-P.x, -P.y, -P.z);
@@ -126,9 +139,7 @@ public class Tela extends JPanel{
 
 		/*Vetor R*/
 		Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 2*aux*normal.z - L.z);
-		//Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 255 * 6 / this.r);
 		
-
 		/*Vetor V*/
 		Ponto V = new Ponto(-pixel.x, -pixel.y, -pixel.z);
 		Auxiliar.normalizar(V);
@@ -139,7 +150,7 @@ public class Tela extends JPanel{
 		/*Componente Especular*/
 		if (escalarVR > 0) {
 			double rugosidade = iluminacao.ks*Math.pow(escalarVR, iluminacao.n);
-			//rugosidade = Math.random() * this.r;
+			//rugosidade = iluminacao.n;
 			cor[0] += iluminacao.Il[0]*rugosidade;
 			cor[1] += iluminacao.Il[1]*rugosidade;
 			cor[2] += iluminacao.Il[2]*rugosidade;
@@ -236,7 +247,7 @@ public class Tela extends JPanel{
 						
 						for (int y = (int) yMin; y <= (int) yMax; y++) {
 
-							pintor(objeto, A, B, C, xMin, xMax, y);
+							pintor(objeto, A, B, C, xMin, xMax, y, P);
 
 							if (!changed && (y == (int) B.y || y == (int) C.y)) {
 								if (Math.abs(y - B.y) == 0) {
@@ -284,12 +295,6 @@ public class Tela extends JPanel{
 			}
 		
 	}
-
-	/*Tentativa de gerenciar melhor o uso de memoria.*/
-	public void free() throws Throwable {
-		finalize();
-	}
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		scanline(g);
