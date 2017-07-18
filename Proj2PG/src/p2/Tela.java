@@ -75,8 +75,10 @@ public class Tela extends JPanel{
 				c = coords[0]*N1.z + coords[1]*N2.z + coords[2]*N3.z;
 
 				N = new Ponto(a, b, c);
-				Ponto aux1 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
-				Ponto aux2 = new Ponto(N2.x-N1.x, N2.y-N1.y, N2.z-N1.z);
+				Ponto aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
+				Ponto aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);	// verificar se sao os dois vetores que sao extraidos
+				Auxiliar.normalizar(aux1);
+				Auxiliar.normalizar(aux2);
 				N = Auxiliar.perturbarNormal(aux1, aux2, N, this.r);
 				Auxiliar.normalizar(N);
 
