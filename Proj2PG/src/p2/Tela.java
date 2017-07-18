@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.util.Arrays;
-import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -31,7 +30,7 @@ public class Tela extends JPanel{
 		this.r = r;
 	}
 
-	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y) {
+	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y, Ponto[] w) {
 		double a, b, c;
 		double[] coords;
 
@@ -62,8 +61,10 @@ public class Tela extends JPanel{
 
 			//Consulta o z-buffer
 			if (x >= 0 && y >= 0 && x < zbuffer.length && y < zbuffer[0].length && P.z > 0 && P.z < zbuffer[(int) x][(int) y]) {
+				
 				zbuffer[(int) x][(int) y] = P.z;
-
+				
+				
 				//Normais dos vertices do triangulo
 				N1 = obj.normaisVertices[A.id];
 				N2 = obj.normaisVertices[B.id];
@@ -128,9 +129,7 @@ public class Tela extends JPanel{
 
 		/*Vetor R*/
 		Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 2*aux*normal.z - L.z);
-		//Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 255 * 6 / this.r);
 		
-
 		/*Vetor V*/
 		Ponto V = new Ponto(-pixel.x, -pixel.y, -pixel.z);
 		Auxiliar.normalizar(V);
@@ -141,7 +140,7 @@ public class Tela extends JPanel{
 		/*Componente Especular*/
 		if (escalarVR > 0) {
 			double rugosidade = iluminacao.ks*Math.pow(escalarVR, iluminacao.n);
-			//rugosidade = Math.random() * this.r;
+			//rugosidade = iluminacao.n;
 			cor[0] += iluminacao.Il[0]*rugosidade;
 			cor[1] += iluminacao.Il[1]*rugosidade;
 			cor[2] += iluminacao.Il[2]*rugosidade;
@@ -238,7 +237,7 @@ public class Tela extends JPanel{
 						
 						for (int y = (int) yMin; y <= (int) yMax; y++) {
 
-							pintor(objeto, A, B, C, xMin, xMax, y);
+							pintor(objeto, A, B, C, xMin, xMax, y, P);
 
 							if (!changed && (y == (int) B.y || y == (int) C.y)) {
 								if (Math.abs(y - B.y) == 0) {
@@ -286,12 +285,6 @@ public class Tela extends JPanel{
 			}
 		
 	}
-
-	/*Tentativa de gerenciar melhor o uso de memoria.*/
-	public void free() throws Throwable {
-		finalize();
-	}
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		scanline(g);
