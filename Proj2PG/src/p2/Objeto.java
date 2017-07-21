@@ -4,7 +4,7 @@ public class Objeto {
 	
 	// pontos do objeto em coordenadas de vista
 	Ponto pontosVisao[];
-	// pontos do objeto em coordenadas de tela (i.e., 2D)
+	// pontos do objeto em coordenadas de tela (2D)
 	Ponto pontosTela[];
 	
 	// partes do pre-processamento

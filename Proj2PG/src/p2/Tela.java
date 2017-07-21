@@ -30,7 +30,7 @@ public class Tela extends JPanel{
 		this.r = r;
 	}
 
-	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y, Ponto[] w) {
+	private void pintor(Objeto obj, Ponto A, Ponto B, Ponto C, double xMin, double xMax, double y, Ponto[] w, int indiceTriangulo) {
 		double a, b, c;
 		double[] coords;
 
@@ -56,13 +56,14 @@ public class Tela extends JPanel{
 			a = coords[0]*P1.x + coords[1]*P2.x + coords[2]*P3.x;
 			b = coords[0]*P1.y + coords[1]*P2.y + coords[2]*P3.y;
 			c = coords[0]*P1.z + coords[1]*P2.z + coords[2]*P3.z;
+			
 
 			P = new Ponto(a, b, c);
 
 			//Consulta o z-buffer
 			if (x >= 0 && y >= 0 && x < zbuffer.length && y < zbuffer[0].length && P.z > 0 && P.z < zbuffer[(int) x][(int) y]) {
 				
-				zbuffer[(int) x][(int) y] = P.z;
+				this.zbuffer[(int) x][(int) y] = P.z;
 				
 				
 				//Normais dos vertices do triangulo
@@ -70,17 +71,119 @@ public class Tela extends JPanel{
 				N2 = obj.normaisVertices[B.id];
 				N3 = obj.normaisVertices[C.id];
 				
+				
 				//Normal do ponto atual
 				a = coords[0]*N1.x + coords[1]*N2.x + coords[2]*N3.x;
 				b = coords[0]*N1.y + coords[1]*N2.y + coords[2]*N3.y;
 				c = coords[0]*N1.z + coords[1]*N2.z + coords[2]*N3.z;
-
+				
 				N = new Ponto(a, b, c);
-				Ponto aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
-				Ponto aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);	// verificar se sao os dois vetores que sao extraidos
+				Ponto aux1;
+				Ponto aux2;
+				Ponto[] temp = new Ponto[3];
+				if(indiceTriangulo > 0){
+					temp[0] = objeto.pontosTela[objeto.triangulos[indiceTriangulo-1][0]];
+					temp[1] = objeto.pontosTela[objeto.triangulos[indiceTriangulo-1][1]];
+					temp[2] = objeto.pontosTela[objeto.triangulos[indiceTriangulo-1][2]];
+	
+					Arrays.sort(temp);
+					Ponto tempA = temp[0];
+					Ponto tempB = temp[1];
+					Ponto tempC = temp[2];
+					
+					int orient = Auxiliar.orientacao(tempA.x, tempA.y, temp[1].x, temp[1].y, temp[2].x, temp[2].y);
+
+					if (orient < 0) { /*Sentido horario*/
+						tempB = temp[1];
+						tempC = temp[2];
+					} else if (orient > 0) { /*Sentido anti-horario*/
+						tempB = temp[2];
+						tempC = temp[1];
+					} else if (temp[1].x < tempA.x && temp[2].x < tempA.x) {
+						tempB = temp[1];
+						tempC = temp[2];
+					} else if (temp[1].x > tempA.x && temp[2].x > tempA.x) {
+						tempB = temp[2];
+						tempC = temp[1];
+					} else if (temp[1].x < temp[2].x) {
+						tempB = temp[1];
+						tempC = temp[2];
+					} else {
+						tempB = temp[2];
+						tempC = temp[1];
+					}
+					
+					if(tempB == B){
+						aux1 = new Ponto(P1.x-P2.x, P1.y-P2.y, P1.z-P2.z);
+						aux2 = new Ponto(P3.x-P2.x, P3.y-P2.y, P3.z-P2.z);
+					} else if (tempB == C) {
+						aux1 = new Ponto(P2.x-P3.x, P2.y-P3.y, P2.z-P3.z);
+						aux2 = new Ponto(P1.x-P3.x, P1.y-P3.y, P1.z-P3.z);
+					} else {
+						aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
+						aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);
+					}
+				} else {
+					if(indiceTriangulo == obj.triangulos.length){
+						aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
+						aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);
+					} else {
+						temp[0] = objeto.pontosTela[objeto.triangulos[indiceTriangulo+1][0]];
+						temp[1] = objeto.pontosTela[objeto.triangulos[indiceTriangulo+1][1]];
+						temp[2] = objeto.pontosTela[objeto.triangulos[indiceTriangulo+1][2]];
+		
+						Arrays.sort(temp);
+						Ponto tempA = temp[0];
+						Ponto tempB = temp[1];
+						Ponto tempC = temp[2];
+						
+						int orient = Auxiliar.orientacao(tempA.x, tempA.y, temp[1].x, temp[1].y, temp[2].x, temp[2].y);
+
+						if (orient < 0) { /*Sentido horario*/
+							tempB = temp[1];
+							tempC = temp[2];
+						} else if (orient > 0) { /*Sentido anti-horario*/
+							tempB = temp[2];
+							tempC = temp[1];
+						} else if (temp[1].x < tempA.x && temp[2].x < tempA.x) {
+							tempB = temp[1];
+							tempC = temp[2];
+						} else if (temp[1].x > tempA.x && temp[2].x > tempA.x) {
+							tempB = temp[2];
+							tempC = temp[1];
+						} else if (temp[1].x < temp[2].x) {
+							tempB = temp[1];
+							tempC = temp[2];
+						} else {
+							tempB = temp[2];
+							tempC = temp[1];
+						}
+						
+						if(tempB == B){
+							aux1 = new Ponto(P1.x-P2.x, P1.y-P2.y, P1.z-P2.z);
+							aux2 = new Ponto(P3.x-P2.x, P3.y-P2.y, P3.z-P2.z);
+						} else if (tempB == C) {
+							aux1 = new Ponto(P2.x-P3.x, P2.y-P3.y, P2.z-P3.z);
+							aux2 = new Ponto(P1.x-P3.x, P1.y-P3.y, P1.z-P3.z);
+						} else {
+							aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
+							aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);
+						}
+					}
+				}
+				
+				/*
+				if(indiceTriangulo % 2 == 0) {
+					aux1 = new Ponto(P2.x-P1.x, P2.y-P1.y, P2.z-P1.z);
+					aux2 = new Ponto(P3.x-P1.x, P3.y-P1.y, P3.z-P1.z);
+				} else {
+					aux1 = new Ponto(P1.x-P3.x, P1.y-P3.y, P1.z-P3.z);
+					aux2 = new Ponto(P2.x-P3.x, P2.y-P3.y, P2.z-P3.z);
+				}*/
+				
 				Auxiliar.normalizar(aux1);
 				Auxiliar.normalizar(aux2);
-				N = Auxiliar.perturbarNormal(aux1, aux2, N, this.r);
+				Auxiliar.perturbarNormal(aux1, aux2, N, this.r);
 				Auxiliar.normalizar(N);
 
 				V = new Ponto(-P.x, -P.y, -P.z);
@@ -111,39 +214,37 @@ public class Tela extends JPanel{
 		cor[0] = ka*iluminacao.Ia[0];
 		cor[1] = ka*iluminacao.Ia[1];
 		cor[2] = ka*iluminacao.Ia[2];
-
+		
 		/*Vetor L*/
 		Ponto L = new Ponto(iluminacao.Pl.x - pixel.x, iluminacao.Pl.y - pixel.y, iluminacao.Pl.z - pixel.z);
 		Auxiliar.normalizar(L);
 
 		/*Componente difusa*/
-		double escalarLNormal = Auxiliar.produtoEscalar(L, normal);
+		double escalarLNormal = Auxiliar.produtoEscalar(normal, L);
 
-		if (escalarLNormal > 0) {
+		if (escalarLNormal >= 0) {
 			cor[0] += iluminacao.Od[0]*iluminacao.Il[0]*iluminacao.kd*escalarLNormal;
 			cor[1] += iluminacao.Od[1]*iluminacao.Il[1]*iluminacao.kd*escalarLNormal;
 			cor[2] += iluminacao.Od[2]*iluminacao.Il[2]*iluminacao.kd*escalarLNormal;
-		}
+			
+			/*Vetor R*/
+			Ponto R = new Ponto(2*escalarLNormal*normal.x - L.x, 2*escalarLNormal*normal.y - L.y, 2*escalarLNormal*normal.z - L.z);
+			Auxiliar.normalizar(R);
+			/*Vetor V*/
+			Ponto V = new Ponto(-pixel.x, -pixel.y, -pixel.z);
+			Auxiliar.normalizar(V);
 
-		double aux = escalarLNormal;
+			double escalarVR = Auxiliar.produtoEscalar(R, V);
+			//escalarVR = Auxiliar.perturbarNormanormal(V, R, Auxiliar.produtoVetorial(V, R), this.r);
 
-		/*Vetor R*/
-		Ponto R = new Ponto(2*aux*normal.x - L.x, 2*aux*normal.y - L.y, 2*aux*normal.z - L.z);
-		
-		/*Vetor V*/
-		Ponto V = new Ponto(-pixel.x, -pixel.y, -pixel.z);
-		Auxiliar.normalizar(V);
-
-		double escalarVR = Auxiliar.produtoEscalar(V, R);
-		//escalarVR = Auxiliar.perturbarNormal(V, R, Auxiliar.produtoVetorial(V, R), this.r);
-
-		/*Componente Especular*/
-		if (escalarVR > 0) {
-			double rugosidade = iluminacao.ks*Math.pow(escalarVR, iluminacao.n);
-			//rugosidade = iluminacao.n;
-			cor[0] += iluminacao.Il[0]*rugosidade;
-			cor[1] += iluminacao.Il[1]*rugosidade;
-			cor[2] += iluminacao.Il[2]*rugosidade;
+			/*Componente Especular*/
+			if (escalarVR >= 0) {
+				double rugosidade = iluminacao.ks*Math.pow(escalarVR, iluminacao.n);
+				//rugosidade = iluminacao.n;
+				cor[0] += iluminacao.Il[0]*rugosidade;
+				cor[1] += iluminacao.Il[1]*rugosidade;
+				cor[2] += iluminacao.Il[2]*rugosidade;
+			}
 		}
 
 		cor[0] = Math.min(cor[0], 255);
@@ -161,7 +262,7 @@ public class Tela extends JPanel{
 		Dimension d = getSize();
 		Insets i = getInsets();
 
-		int v_height = d.height - i.top - i.bottom;
+		int v_height = d.height - i.top - i.bottom; 
 		int v_width = d.width - i.left - i.right;
 
 		updateCoords(v_width, v_height);
@@ -179,9 +280,20 @@ public class Tela extends JPanel{
 				P[2] = objeto.pontosTela[objeto.triangulos[k][2]];
 
 				Arrays.sort(P);
-
 				A = P[0];
-
+				/*C = P[1];
+				B = P[2];
+				
+				
+				
+				if (Auxiliar.encontrarLado(A.x, A.y, P[1].x, P[1].y, P[2].x, P[2].y) > 0) {
+					B = P[1];
+					C = P[2];
+				} else {
+					B = P[2];
+					C = P[1];
+				}*/
+				
 				int orient = Auxiliar.orientacao(A.x, A.y, P[1].x, P[1].y, P[2].x, P[2].y);
 
 				if (orient < 0) { /*Sentido horario*/
@@ -203,7 +315,7 @@ public class Tela extends JPanel{
 					B = P[2];
 					C = P[1];
 				}
-
+				
 				if (Auxiliar.isTriangle(A, B, C)) {
 					
 					if ((A.x < 0 && B.x < 0 && C.x < 0) 
@@ -237,7 +349,7 @@ public class Tela extends JPanel{
 						
 						for (int y = (int) yMin; y <= (int) yMax; y++) {
 
-							pintor(objeto, A, B, C, xMin, xMax, y, P);
+							pintor(objeto, A, B, C, xMin, xMax, y, P, k);
 
 							if (!changed && (y == (int) B.y || y == (int) C.y)) {
 								if (Math.abs(y - B.y) == 0) {

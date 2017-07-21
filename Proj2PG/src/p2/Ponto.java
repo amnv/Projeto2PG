@@ -11,6 +11,6 @@ public class Ponto implements Comparable<Ponto> {
 	}
 
 	public int compareTo(Ponto p) {
-		return (int) (y - p.y);
+		return (int) Math.signum(y - ((Ponto) p).y);
 	}
 }
